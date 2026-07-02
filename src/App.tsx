@@ -14,6 +14,7 @@ import {
   type AdminOverview,
   type ThresholdCheckResult,
 } from "./api";
+import finerzLogo from "./assets/finerz_logo.png";
 
 const STORAGE_KEY = "finerz-admin-api-key";
 const sentryProjectUrl = import.meta.env.VITE_SENTRY_PROJECT_URL as string | undefined;
@@ -33,11 +34,22 @@ function useStoredApiKey(): [string, (key: string) => void, () => void] {
   return [apiKey, setApiKey, clearApiKey];
 }
 
+function OrbField() {
+  return (
+    <div className="orb-field">
+      <div className="orb orb-a" />
+      <div className="orb orb-b" />
+    </div>
+  );
+}
+
 function LoginScreen(props: { onSubmit: (key: string) => void }) {
   const [value, setValue] = useState("");
   return (
     <div className="login-screen">
+      <OrbField />
       <div className="login-card">
+        <img src={finerzLogo} alt="Finerz" />
         <div className="brand">Finerz</div>
         <p className="lede">Supervision — accès réservé</p>
         <input
@@ -107,10 +119,14 @@ function Dashboard(props: { apiKey: string; onSignOut: () => void }) {
 
   return (
     <div className="shell">
+      <OrbField />
       <header className="topbar">
         <div className="brand">
-          <strong>Finerz</strong>
-          <span>Supervision</span>
+          <img src={finerzLogo} alt="Finerz" />
+          <div className="brand-text">
+            <strong>Finerz</strong>
+            <span>Supervision</span>
+          </div>
         </div>
         <button className="signout" onClick={props.onSignOut}>
           <LogOut size={14} />

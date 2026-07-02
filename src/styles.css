@@ -1,17 +1,23 @@
+/* Design system repris de l'app mobile Finerz (frontend/src/theme.ts,
+   GlassSurface.tsx) — meme palette, meme police, meme esthetique "liquid
+   glass", pour que la web app de supervision ait la meme DA que l'app. */
+
 :root {
   color-scheme: light;
-  --bg: #f3f4f7;
-  --surface: #ffffff;
-  --border: #e4e6eb;
-  --ink: #14171f;
-  --muted: #6b7280;
-  --accent: #2f6feb;
-  --accent-soft: #eaf1ff;
-  --danger: #dc2626;
-  --danger-soft: #fdecec;
-  --ok: #16a34a;
-  --ok-soft: #eafaf0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --bg: #edf3ff;
+  --card: rgba(255, 255, 255, 0.7);
+  --card-border: rgba(255, 255, 255, 0.76);
+  --ink: #0d172a;
+  --title: #081226;
+  --text: #0f1a30;
+  --muted: #60708a;
+  --primary: #2ed4e6;
+  --danger: #ff5c66;
+  --danger-soft: rgba(255, 92, 102, 0.12);
+  --success: #1ccf8a;
+  --success-soft: rgba(28, 207, 138, 0.14);
+  --shadow: 0 12px 24px rgba(108, 143, 190, 0.2);
+  font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 * {
@@ -21,78 +27,128 @@
 body {
   margin: 0;
   background: var(--bg);
-  color: var(--ink);
+  color: var(--text);
   -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Ambient orbs (liquid glass backdrop glow) ---------- */
+
+.orb-field {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(70px);
+}
+
+.orb.orb-a {
+  width: 420px;
+  height: 420px;
+  top: -140px;
+  left: -100px;
+  background: rgba(46, 212, 230, 0.35);
+}
+
+.orb.orb-b {
+  width: 360px;
+  height: 360px;
+  bottom: -160px;
+  right: -80px;
+  background: rgba(122, 162, 255, 0.3);
 }
 
 /* ---------- Shell ---------- */
 
 .shell {
+  position: relative;
+  z-index: 1;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
 .topbar {
-  background: #0b1220;
-  color: #f4f6fb;
-  padding: 0.9rem 1.75rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #1c2536;
+  padding: 1.5rem 1.75rem 0.5rem;
 }
 
 .topbar .brand {
   display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.65rem;
 }
 
-.topbar .brand strong {
-  font-size: 1rem;
+.topbar .brand img {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: block;
+}
+
+.topbar .brand-text strong {
+  display: block;
+  font-family: "DM Sans", sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--title);
   letter-spacing: -0.01em;
 }
 
-.topbar .brand span {
-  font-size: 0.8rem;
-  color: #8b93a7;
+.topbar .brand-text span {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
 }
 
 .topbar .signout {
   background: transparent;
-  color: #c6cbd8;
-  border: 1px solid #2a3346;
-  padding: 0.4rem 0.8rem;
-  font-size: 0.78rem;
+  color: var(--ink);
+  border: 1px solid var(--card-border);
+  box-shadow: none;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.75rem;
+  border-radius: 999px;
 }
 
 .topbar .signout:hover {
-  color: #fff;
-  border-color: #3a465e;
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .content {
   flex: 1;
-  padding: 2rem 1.75rem 3rem;
+  padding: 1.5rem 1.75rem 3rem;
   max-width: 960px;
   width: 100%;
   margin: 0 auto;
 }
 
 .content h1 {
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin: 0 0 0.25rem;
+  font-family: "DM Sans", sans-serif;
+  font-weight: 700;
+  font-size: 1.75rem;
+  letter-spacing: -0.02em;
+  color: var(--title);
+  margin: 0 0 0.2rem;
 }
 
 .content .lede {
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   margin: 0 0 1.75rem;
 }
 
-/* ---------- Grid + cards ---------- */
+/* ---------- Grid + glass cards ---------- */
 
 .grid {
   display: grid;
@@ -102,10 +158,13 @@ body {
 }
 
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.1rem 1.25rem;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 22px;
+  padding: 1.2rem 1.35rem;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: var(--shadow);
 }
 
 .card-header {
@@ -113,27 +172,29 @@ body {
   align-items: center;
   gap: 0.5rem;
   color: var(--muted);
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.7rem;
 }
 
 .card-header svg {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
 }
 
 .card-header h2 {
   margin: 0;
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
 }
 
 .metric {
-  font-size: 2rem;
-  font-weight: 650;
+  font-family: "DM Sans", sans-serif;
+  font-weight: 700;
+  font-size: 2.1rem;
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  color: var(--title);
 }
 
 .metric.alert {
@@ -141,8 +202,8 @@ body {
 }
 
 .metric-note {
-  margin-top: 0.35rem;
-  font-size: 0.8rem;
+  margin-top: 0.4rem;
+  font-size: 0.78rem;
   color: var(--muted);
 }
 
@@ -150,9 +211,9 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.35rem 0;
-  font-size: 0.88rem;
-  border-bottom: 1px solid var(--border);
+  padding: 0.4rem 0;
+  font-size: 0.85rem;
+  border-bottom: 1px solid rgba(15, 26, 46, 0.06);
 }
 
 .event-row:last-child {
@@ -161,6 +222,7 @@ body {
 
 .event-row strong {
   font-variant-numeric: tabular-nums;
+  color: var(--title);
 }
 
 .empty-note {
@@ -172,14 +234,14 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  color: var(--accent);
-  font-size: 0.88rem;
-  font-weight: 500;
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 0.85rem;
   text-decoration: none;
 }
 
 .ext-link:hover {
-  text-decoration: underline;
+  color: var(--primary);
 }
 
 /* ---------- Threshold check card ---------- */
@@ -188,10 +250,11 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .check-card .checked-at {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 
@@ -199,16 +262,18 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.2rem 0.6rem;
+  padding: 0.25rem 0.7rem;
   border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
   margin-top: 0.9rem;
 }
 
 .badge.ok {
-  background: var(--ok-soft);
-  color: var(--ok);
+  background: var(--success-soft);
+  color: var(--success);
 }
 
 .badge.alert {
@@ -220,7 +285,7 @@ body {
   margin: 0.75rem 0 0;
   padding-left: 1.1rem;
   font-size: 0.85rem;
-  color: var(--ink);
+  color: var(--text);
 }
 
 .breach-list li {
@@ -230,8 +295,8 @@ body {
 .error-banner {
   background: var(--danger-soft);
   color: var(--danger);
-  border: 1px solid #f5c2c2;
-  border-radius: 10px;
+  border: 1px solid rgba(255, 92, 102, 0.3);
+  border-radius: 16px;
   padding: 0.75rem 1rem;
   font-size: 0.85rem;
   margin-bottom: 1rem;
@@ -240,73 +305,98 @@ body {
 /* ---------- Buttons ---------- */
 
 button {
-  background: var(--accent);
+  background: var(--ink);
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 0.55rem 1.1rem;
-  font-size: 0.85rem;
-  font-weight: 500;
+  border-radius: 999px;
+  padding: 0.6rem 1.3rem;
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  transition: background 0.15s ease;
+  min-height: 40px;
+  box-shadow: 0 8px 16px rgba(13, 23, 42, 0.18);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 button:hover:not(:disabled) {
-  background: #2559c7;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(13, 23, 42, 0.22);
 }
 
 button:disabled {
   opacity: 0.5;
   cursor: default;
+  transform: none;
 }
 
 /* ---------- Login ---------- */
 
 .login-screen {
+  position: relative;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg);
 }
 
 .login-card {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 380px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 2rem;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 28px;
+  padding: 2.2rem;
   text-align: left;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: var(--shadow);
+}
+
+.login-card img {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  margin-bottom: 1rem;
 }
 
 .login-card .brand {
-  font-size: 1.1rem;
-  font-weight: 650;
+  font-family: "DM Sans", sans-serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--title);
+  letter-spacing: -0.02em;
   margin-bottom: 0.15rem;
 }
 
 .login-card .lede {
   color: var(--muted);
-  font-size: 0.85rem;
-  margin: 0 0 1.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 1.5rem;
 }
 
 .login-card input {
   width: 100%;
-  padding: 0.65rem 0.8rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--card-border);
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 14px;
+  font-family: "DM Sans", sans-serif;
   font-size: 0.9rem;
-  margin-bottom: 0.9rem;
+  margin-bottom: 1rem;
 }
 
 .login-card input:focus {
-  outline: 2px solid var(--accent-soft);
-  border-color: var(--accent);
+  outline: 2px solid rgba(46, 212, 230, 0.35);
+  border-color: var(--primary);
 }
 
 .login-card button {
