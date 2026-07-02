@@ -1,4 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import {
+  AlertTriangle,
+  ExternalLink,
+  KeyRound,
+  LogOut,
+  RefreshCw,
+  ShieldCheck,
+  Wrench,
+} from "lucide-react";
 import {
   fetchOverview,
   triggerThresholdCheck,
@@ -7,8 +16,9 @@ import {
 } from "./api";
 
 const STORAGE_KEY = "finerz-admin-api-key";
+const sentryProjectUrl = import.meta.env.VITE_SENTRY_PROJECT_URL as string | undefined;
 
-function useStoredApiKey(): [string, (key: string) => void] {
+function useStoredApiKey(): [string, (key: string) => void, () => void] {
   const [apiKey, setApiKeyState] = useState(
     () => localStorage.getItem(STORAGE_KEY) ?? ""
   );
@@ -16,29 +26,47 @@ function useStoredApiKey(): [string, (key: string) => void] {
     localStorage.setItem(STORAGE_KEY, key);
     setApiKeyState(key);
   };
-  return [apiKey, setApiKey];
+  const clearApiKey = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setApiKeyState("");
+  };
+  return [apiKey, setApiKey, clearApiKey];
 }
 
-function LoginForm(props: { onSubmit: (key: string) => void }) {
+function LoginScreen(props: { onSubmit: (key: string) => void }) {
   const [value, setValue] = useState("");
   return (
-    <div className="card" style={{ maxWidth: 420 }}>
-      <h2>Clé API admin</h2>
-      <input
-        type="password"
-        value={value}
-        onChange={(event) => setValue(event.target.value)}
-        placeholder="Colle ta clé API admin"
-        style={{ width: "100%", padding: "0.5rem", marginBottom: "0.75rem" }}
-      />
-      <button onClick={() => props.onSubmit(value)}>Se connecter</button>
+    <div className="login-screen">
+      <div className="login-card">
+        <div className="brand">Finerz</div>
+        <p className="lede">Supervision — accès réservé</p>
+        <input
+          type="password"
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          onKeyDown={(event) => event.key === "Enter" && props.onSubmit(value)}
+          placeholder="Clé API admin"
+          autoFocus
+        />
+        <button onClick={() => props.onSubmit(value)}>
+          <KeyRound size={15} />
+          Se connecter
+        </button>
+      </div>
     </div>
   );
 }
 
-const sentryProjectUrl = import.meta.env.VITE_SENTRY_PROJECT_URL as string | undefined;
+function CardHeader(props: { icon: ReactNode; label: string }) {
+  return (
+    <div className="card-header">
+      {props.icon}
+      <h2>{props.label}</h2>
+    </div>
+  );
+}
 
-function Dashboard(props: { apiKey: string }) {
+function Dashboard(props: { apiKey: string; onSignOut: () => void }) {
   const [overview, setOverview] = useState<AdminOverview | null>(null);
   const [checkResult, setCheckResult] = useState<ThresholdCheckResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -75,80 +103,119 @@ function Dashboard(props: { apiKey: string }) {
     }
   };
 
+  const eventEntries = overview ? Object.entries(overview.auth_events_last_24h) : [];
+
   return (
-    <div style={{ maxWidth: 720 }}>
-      <h1>Supervision Finerz</h1>
-      {error && (
-        <div className="card" style={{ borderLeft: "4px solid #dc2626" }}>
-          {error}
+    <div className="shell">
+      <header className="topbar">
+        <div className="brand">
+          <strong>Finerz</strong>
+          <span>Supervision</span>
         </div>
-      )}
-
-      {sentryProjectUrl && (
-        <div className="card">
-          <h2>Erreurs applicatives</h2>
-          <a href={sentryProjectUrl} target="_blank" rel="noreferrer">
-            Voir les erreurs sur Sentry →
-          </a>
-        </div>
-      )}
-
-      <div className="card">
-        <h2>Jobs de nettoyage Bridge bloqués</h2>
-        <div
-          className={
-            "metric " + (overview && overview.stuck_bridge_cleanup_jobs > 0 ? "alert" : "")
-          }
-        >
-          {overview ? overview.stuck_bridge_cleanup_jobs : "…"}
-        </div>
-      </div>
-
-      <div className="card">
-        <h2>Événements d'authentification (24h)</h2>
-        {overview && Object.keys(overview.auth_events_last_24h).length === 0 && (
-          <p>Aucun événement sur les dernières 24h.</p>
-        )}
-        {overview &&
-          Object.entries(overview.auth_events_last_24h).map(([type, count]) => (
-            <div key={type} style={{ display: "flex", justifyContent: "space-between" }}>
-              <span>{type}</span>
-              <strong>{count}</strong>
-            </div>
-          ))}
-      </div>
-
-      <div className="card">
-        <h2>Vérification des seuils</h2>
-        <button onClick={handleCheckNow} disabled={loading}>
-          Vérifier maintenant
+        <button className="signout" onClick={props.onSignOut}>
+          <LogOut size={14} />
+          Déconnexion
         </button>
-        {checkResult && (
-          <div style={{ marginTop: "1rem" }}>
-            <p>Vérifié à {checkResult.checked_at}</p>
-            {checkResult.breached_rules.length === 0 ? (
-              <p>Aucun seuil dépassé.</p>
-            ) : (
-              <ul>
-                {checkResult.breached_rules.map((rule) => (
-                  <li key={rule}>{rule}</li>
-                ))}
-              </ul>
-            )}
-            <p>Alerte email envoyée : {checkResult.alert_sent ? "oui" : "non"}</p>
+      </header>
+
+      <main className="content">
+        <h1>Vue d'ensemble</h1>
+        <p className="lede">Indicateurs métier et disponibilité, mis à jour en direct.</p>
+
+        {error && (
+          <div className="error-banner">
+            <AlertTriangle size={14} style={{ verticalAlign: "-2px", marginRight: "0.4rem" }} />
+            {error}
           </div>
         )}
-      </div>
+
+        <div className="grid">
+          <div className="card">
+            <CardHeader icon={<Wrench />} label="Jobs de nettoyage Bridge bloqués" />
+            <div
+              className={
+                "metric " + (overview && overview.stuck_bridge_cleanup_jobs > 0 ? "alert" : "")
+              }
+            >
+              {overview ? overview.stuck_bridge_cleanup_jobs : "…"}
+            </div>
+            <p className="metric-note">Tentatives ≥ 3, jamais résolues automatiquement</p>
+          </div>
+
+          {sentryProjectUrl && (
+            <div className="card">
+              <CardHeader icon={<AlertTriangle />} label="Erreurs applicatives" />
+              <a
+                className="ext-link"
+                href={sentryProjectUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Voir sur Sentry <ExternalLink size={13} />
+              </a>
+            </div>
+          )}
+        </div>
+
+        <div className="card" style={{ marginBottom: "1rem" }}>
+          <CardHeader icon={<ShieldCheck />} label="Événements d'authentification (24h)" />
+          {eventEntries.length === 0 ? (
+            <p className="empty-note">Aucun événement sur les dernières 24h.</p>
+          ) : (
+            eventEntries.map(([type, count]) => (
+              <div key={type} className="event-row">
+                <span>{type}</span>
+                <strong>{count}</strong>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="card check-card">
+          <CardHeader icon={<RefreshCw />} label="Vérification des seuils métier" />
+          <div className="check-actions">
+            <button onClick={handleCheckNow} disabled={loading}>
+              <RefreshCw size={14} />
+              Vérifier maintenant
+            </button>
+            {checkResult && <span className="checked-at">Vérifié à {checkResult.checked_at}</span>}
+          </div>
+
+          {checkResult && (
+            <>
+              {checkResult.breached_rules.length === 0 ? (
+                <span className="badge ok">
+                  <ShieldCheck size={13} /> Aucun seuil dépassé
+                </span>
+              ) : (
+                <>
+                  <span className="badge alert">
+                    <AlertTriangle size={13} /> {checkResult.breached_rules.length} seuil(s) dépassé(s)
+                  </span>
+                  <ul className="breach-list">
+                    {checkResult.breached_rules.map((rule) => (
+                      <li key={rule}>{rule}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              <p className="metric-note" style={{ marginTop: "0.6rem" }}>
+                Alerte email envoyée : {checkResult.alert_sent ? "oui" : "non"}
+              </p>
+            </>
+          )}
+        </div>
+      </main>
     </div>
   );
 }
 
 export default function App() {
-  const [apiKey, setApiKey] = useStoredApiKey();
+  const [apiKey, setApiKey, clearApiKey] = useStoredApiKey();
 
   if (!apiKey) {
-    return <LoginForm onSubmit={setApiKey} />;
+    return <LoginScreen onSubmit={setApiKey} />;
   }
 
-  return <Dashboard apiKey={apiKey} />;
+  return <Dashboard apiKey={apiKey} onSignOut={clearApiKey} />;
 }
