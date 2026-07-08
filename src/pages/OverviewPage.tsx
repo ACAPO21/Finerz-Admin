@@ -1,16 +1,25 @@
 import { useEffect, useState } from "react";
-import { AlertTriangle, RefreshCw, ShieldCheck, Wrench } from "lucide-react";
+import { AlertTriangle, Radio, RefreshCw, ShieldCheck, Wrench } from "lucide-react";
 import {
   fetchOverview,
+  fetchRecentActivity,
   triggerThresholdCheck,
+  type ActivityEntry,
   type AdminOverview,
   type ThresholdCheckResult,
 } from "../api";
 import { CardHeader } from "../components/CardHeader";
 
+const ACTIVITY_POLL_INTERVAL_MS = 10_000;
+
+function formatTime(value: string): string {
+  return new Date(value).toLocaleTimeString("fr-FR");
+}
+
 export function OverviewPage(props: { apiKey: string }) {
   const [overview, setOverview] = useState<AdminOverview | null>(null);
   const [checkResult, setCheckResult] = useState<ThresholdCheckResult | null>(null);
+  const [activity, setActivity] = useState<ActivityEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -29,6 +38,24 @@ export function OverviewPage(props: { apiKey: string }) {
 
   useEffect(() => {
     load();
+  }, [props.apiKey]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadActivity = async () => {
+      try {
+        const data = await fetchRecentActivity(props.apiKey);
+        if (!cancelled) setActivity(data.entries);
+      } catch {
+        // une source secondaire qui echoue ne doit pas casser le reste de la page
+      }
+    };
+    loadActivity();
+    const interval = setInterval(loadActivity, ACTIVITY_POLL_INTERVAL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
   }, [props.apiKey]);
 
   const handleCheckNow = async () => {
@@ -82,6 +109,28 @@ export function OverviewPage(props: { apiKey: string }) {
             <div key={type} className="event-row">
               <span>{type}</span>
               <strong>{count}</strong>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="card" style={{ marginBottom: "1rem" }}>
+        <div className="card-header" style={{ justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <Radio size={15} />
+            <h2>Activité récente</h2>
+          </div>
+          <span className="terminal-live-dot">En direct</span>
+        </div>
+        {activity.length === 0 ? (
+          <p className="empty-note">Aucune activité pour le moment.</p>
+        ) : (
+          activity.map((entry, index) => (
+            <div key={`${entry.timestamp}-${index}`} className="event-row">
+              <span>
+                {entry.kind === "auth" ? "Authentification" : "Webhook"} · {entry.label}
+              </span>
+              <strong>{formatTime(entry.timestamp)}</strong>
             </div>
           ))
         )}

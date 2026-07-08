@@ -3,7 +3,6 @@ import { KeyRound, LogOut } from "lucide-react";
 import finerzLogo from "./assets/finerz_logo.png";
 import { Sidebar, type PageId } from "./components/Sidebar";
 import { OverviewPage } from "./pages/OverviewPage";
-import { TerminalPage } from "./pages/TerminalPage";
 import { SentryPage } from "./pages/SentryPage";
 import { CiDependenciesPage } from "./pages/CiDependenciesPage";
 import { InfrastructurePage } from "./pages/InfrastructurePage";
@@ -95,7 +94,6 @@ function Workspace(props: { apiKey: string; onSignOut: () => void }) {
 
         <main className="main-content">
           {page === "overview" && <OverviewPage apiKey={props.apiKey} />}
-          {page === "terminal" && <TerminalPage apiKey={props.apiKey} />}
           {page === "sentry" && <SentryPage apiKey={props.apiKey} />}
           {page === "ci" && <CiDependenciesPage apiKey={props.apiKey} />}
           {page === "infrastructure" && <InfrastructurePage apiKey={props.apiKey} />}
