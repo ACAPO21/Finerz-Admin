@@ -43,22 +43,22 @@ export function InfrastructurePage(props: { apiKey: string }) {
         <p className="metric-note">Dernier point de mesure (fenêtre de 30 min)</p>
       </div>
 
-      <div className="grid" style={{ marginBottom: "1rem" }}>
+      <div className="metrics-grid" style={{ marginBottom: "1rem" }}>
         <div className="card">
           <CardHeader icon={<Server />} label="CPU (24h)" />
-          <MetricChart data={history?.cpu_usage ?? []} color="#7c3aed" unitSuffix=" vCPU" />
+          <MetricChart data={history?.cpu_usage ?? []} color="#7c3aed" unitSuffix=" vCPU" height={280} />
         </div>
         <div className="card">
           <CardHeader icon={<Server />} label="Mémoire (24h)" />
-          <MetricChart data={history?.memory_usage_gb ?? []} color="#2563eb" unitSuffix=" Go" />
+          <MetricChart data={history?.memory_usage_gb ?? []} color="#2563eb" unitSuffix=" Go" height={280} />
         </div>
         <div className="card">
           <CardHeader icon={<Server />} label="Réseau entrant (24h)" />
-          <MetricChart data={history?.network_rx_gb ?? []} color="#0d9488" unitSuffix=" Go" />
+          <MetricChart data={history?.network_rx_gb ?? []} color="#0d9488" unitSuffix=" Go" height={280} />
         </div>
         <div className="card">
           <CardHeader icon={<Server />} label="Réseau sortant (24h)" />
-          <MetricChart data={history?.network_tx_gb ?? []} color="#b45309" unitSuffix=" Go" />
+          <MetricChart data={history?.network_tx_gb ?? []} color="#b45309" unitSuffix=" Go" height={280} />
         </div>
       </div>
 

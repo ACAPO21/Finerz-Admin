@@ -157,6 +157,12 @@ body {
   margin-bottom: 1rem;
 }
 
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+  gap: 1rem;
+}
+
 .card {
   background: var(--card);
   border: 1px solid var(--card-border);
