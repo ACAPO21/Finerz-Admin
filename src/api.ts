@@ -67,3 +67,23 @@ export async function fetchIntegrationsSummary(
   }
   return response.json();
 }
+
+export type ActivityEntry = {
+  timestamp: string;
+  kind: "auth" | "webhook";
+  label: string;
+};
+
+export type RecentActivity = {
+  entries: ActivityEntry[];
+};
+
+export async function fetchRecentActivity(apiKey: string): Promise<RecentActivity> {
+  const response = await fetch(`${API_BASE_URL}/admin/activity/recent`, {
+    headers: authHeaders(apiKey),
+  });
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status} en récupérant l'activité récente`);
+  }
+  return response.json();
+}
