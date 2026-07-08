@@ -38,3 +38,32 @@ export async function triggerThresholdCheck(
   }
   return response.json();
 }
+
+export type WorkflowStatus = {
+  status: string | null;
+  conclusion: string | null;
+  created_at: string | null;
+};
+
+export type IntegrationsSummary = {
+  sentry_unresolved_issues: number | null;
+  ci_daily_tests: WorkflowStatus;
+  availability_check: WorkflowStatus;
+  dependabot_open_prs: number | null;
+  railway_cpu_usage_percent: number | null;
+  railway_memory_usage_gb: number | null;
+  bridge_last_webhook_at: string | null;
+  revenuecat_last_webhook_at: string | null;
+};
+
+export async function fetchIntegrationsSummary(
+  apiKey: string
+): Promise<IntegrationsSummary> {
+  const response = await fetch(`${API_BASE_URL}/admin/integrations`, {
+    headers: authHeaders(apiKey),
+  });
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status} en récupérant les intégrations`);
+  }
+  return response.json();
+}

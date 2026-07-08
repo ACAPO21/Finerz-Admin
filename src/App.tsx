@@ -9,9 +9,11 @@ import {
   Wrench,
 } from "lucide-react";
 import {
+  fetchIntegrationsSummary,
   fetchOverview,
   triggerThresholdCheck,
   type AdminOverview,
+  type IntegrationsSummary,
   type ThresholdCheckResult,
 } from "./api";
 import finerzLogo from "./assets/finerz_logo.png";
@@ -78,8 +80,14 @@ function CardHeader(props: { icon: ReactNode; label: string }) {
   );
 }
 
+function formatDate(value: string | null | undefined): string {
+  if (!value) return "Aucune donnée";
+  return new Date(value).toLocaleString("fr-FR");
+}
+
 function Dashboard(props: { apiKey: string; onSignOut: () => void }) {
   const [overview, setOverview] = useState<AdminOverview | null>(null);
+  const [integrations, setIntegrations] = useState<IntegrationsSummary | null>(null);
   const [checkResult, setCheckResult] = useState<ThresholdCheckResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -94,6 +102,14 @@ function Dashboard(props: { apiKey: string; onSignOut: () => void }) {
       setError(err instanceof Error ? err.message : "Erreur inconnue");
     } finally {
       setLoading(false);
+    }
+
+    try {
+      const data = await fetchIntegrationsSummary(props.apiKey);
+      setIntegrations(data);
+    } catch {
+      // Une source qui echoue ne doit pas casser le reste du dashboard.
+      setIntegrations(null);
     }
   };
 
@@ -158,24 +174,68 @@ function Dashboard(props: { apiKey: string; onSignOut: () => void }) {
             <p className="metric-note">Tentatives ≥ 3, jamais résolues automatiquement</p>
           </div>
 
-          {sentryProjectUrl && (
-            <div className="card">
-              <CardHeader icon={<AlertTriangle />} label="Erreurs applicatives" />
-              <a
-                className="ext-link"
-                href={sentryProjectUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
+          <div className="card">
+            <CardHeader icon={<AlertTriangle />} label="Erreurs applicatives" />
+            <div
+              className={"metric " + (integrations?.sentry_unresolved_issues ? "alert" : "")}
+            >
+              {integrations?.sentry_unresolved_issues ?? "—"}
+            </div>
+            {sentryProjectUrl && (
+              <a className="ext-link" href={sentryProjectUrl} target="_blank" rel="noreferrer">
                 Voir sur Sentry <ExternalLink size={13} />
               </a>
+            )}
+          </div>
+
+          <div className="card">
+            <CardHeader icon={<RefreshCw />} label="CI (tests quotidiens)" />
+            <div className="metric" style={{ fontSize: "1.2rem" }}>
+              {integrations?.ci_daily_tests.conclusion ?? "—"}
             </div>
-          )}
+            <p className="metric-note">{formatDate(integrations?.ci_daily_tests.created_at)}</p>
+          </div>
+
+          <div className="card">
+            <CardHeader icon={<ShieldCheck />} label="Disponibilité (ping /health)" />
+            <div className="metric" style={{ fontSize: "1.2rem" }}>
+              {integrations?.availability_check.conclusion ?? "—"}
+            </div>
+            <p className="metric-note">
+              {formatDate(integrations?.availability_check.created_at)}
+            </p>
+          </div>
+
+          <div className="card">
+            <CardHeader icon={<Wrench />} label="Dépendances (Dependabot)" />
+            <div className="metric">{integrations?.dependabot_open_prs ?? "—"}</div>
+            <p className="metric-note">PR ouvertes en attente de revue</p>
+          </div>
+
+          <div className="card">
+            <CardHeader icon={<Wrench />} label="Railway (CPU / mémoire)" />
+            <div className="metric" style={{ fontSize: "1.4rem" }}>
+              {integrations?.railway_cpu_usage_percent?.toFixed(1) ?? "—"}% ·{" "}
+              {integrations?.railway_memory_usage_gb?.toFixed(2) ?? "—"} Go
+            </div>
+          </div>
+
+          <div className="card">
+            <CardHeader icon={<ShieldCheck />} label="Dernier webhook Bridge" />
+            <p className="metric-note">{formatDate(integrations?.bridge_last_webhook_at)}</p>
+          </div>
+
+          <div className="card">
+            <CardHeader icon={<ShieldCheck />} label="Dernier webhook RevenueCat" />
+            <p className="metric-note">{formatDate(integrations?.revenuecat_last_webhook_at)}</p>
+          </div>
         </div>
 
         <div className="card" style={{ marginBottom: "1rem" }}>
           <CardHeader icon={<ShieldCheck />} label="Événements d'authentification (24h)" />
-          {eventEntries.length === 0 ? (
+          {!overview ? (
+            <p className="empty-note">Chargement…</p>
+          ) : eventEntries.length === 0 ? (
             <p className="empty-note">Aucun événement sur les dernières 24h.</p>
           ) : (
             eventEntries.map(([type, count]) => (
