@@ -1,9 +1,17 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000/api";
 
+export type StuckCleanupJob = {
+  user_id: string;
+  attempts: number;
+  last_error: string | null;
+  next_retry_at: string;
+};
+
 export type AdminOverview = {
   generated_at: string;
   auth_events_last_24h: Record<string, number>;
   stuck_bridge_cleanup_jobs: number;
+  stuck_bridge_cleanup_jobs_detail: StuckCleanupJob[];
 };
 
 export type ThresholdCheckResult = {
@@ -43,6 +51,14 @@ export type WorkflowStatus = {
   status: string | null;
   conclusion: string | null;
   created_at: string | null;
+  html_url: string | null;
+};
+
+export type DependabotPullRequest = {
+  title: string;
+  html_url: string;
+  number: number;
+  created_at: string;
 };
 
 export type IntegrationsSummary = {
@@ -50,6 +66,7 @@ export type IntegrationsSummary = {
   ci_daily_tests: WorkflowStatus;
   availability_check: WorkflowStatus;
   dependabot_open_prs: number | null;
+  dependabot_prs: DependabotPullRequest[];
   railway_cpu_usage_percent: number | null;
   railway_memory_usage_gb: number | null;
   bridge_last_webhook_at: string | null;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { GitBranch, RefreshCw, ShieldCheck, Wrench } from "lucide-react";
+import { ExternalLink, GitBranch, RefreshCw, ShieldCheck, Wrench } from "lucide-react";
 import { fetchIntegrationsSummary, type IntegrationsSummary } from "../api";
 import { CardHeader } from "../components/CardHeader";
 import { formatDate } from "../format";
@@ -28,6 +28,17 @@ export function CiDependenciesPage(props: { apiKey: string }) {
             {integrations?.ci_daily_tests.conclusion ?? "—"}
           </div>
           <p className="metric-note">{formatDate(integrations?.ci_daily_tests.created_at)}</p>
+          {integrations?.ci_daily_tests.html_url && (
+            <a
+              className="ext-link"
+              href={integrations.ci_daily_tests.html_url}
+              target="_blank"
+              rel="noreferrer"
+              style={{ marginTop: "0.5rem" }}
+            >
+              Voir ce run <ExternalLink size={12} />
+            </a>
+          )}
         </div>
 
         <div className="card">
@@ -38,6 +49,17 @@ export function CiDependenciesPage(props: { apiKey: string }) {
           <p className="metric-note">
             {formatDate(integrations?.availability_check.created_at)}
           </p>
+          {integrations?.availability_check.html_url && (
+            <a
+              className="ext-link"
+              href={integrations.availability_check.html_url}
+              target="_blank"
+              rel="noreferrer"
+              style={{ marginTop: "0.5rem" }}
+            >
+              Voir ce run <ExternalLink size={12} />
+            </a>
+          )}
         </div>
       </div>
 
@@ -45,6 +67,18 @@ export function CiDependenciesPage(props: { apiKey: string }) {
         <CardHeader icon={<Wrench />} label="Dépendances (Dependabot)" />
         <div className="metric">{integrations?.dependabot_open_prs ?? "—"}</div>
         <p className="metric-note">PR ouvertes en attente de revue</p>
+        {integrations && integrations.dependabot_prs.length > 0 && (
+          <div style={{ marginTop: "0.75rem" }}>
+            {integrations.dependabot_prs.map((pr) => (
+              <div key={pr.number} className="event-row">
+                <a href={pr.html_url} target="_blank" rel="noreferrer" className="ext-link">
+                  #{pr.number} {pr.title}
+                </a>
+                <span>{formatDate(pr.created_at)}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="card" style={{ marginTop: "1rem" }}>

@@ -96,6 +96,17 @@ export function OverviewPage(props: { apiKey: string }) {
           {overview ? overview.stuck_bridge_cleanup_jobs : "…"}
         </div>
         <p className="metric-note">Tentatives ≥ 3, jamais résolues automatiquement</p>
+        {overview && overview.stuck_bridge_cleanup_jobs_detail.length > 0 && (
+          <ul className="breach-list">
+            {overview.stuck_bridge_cleanup_jobs_detail.map((job) => (
+              <li key={job.user_id}>
+                Utilisateur {job.user_id} — {job.attempts} tentative(s), prochain essai{" "}
+                {new Date(job.next_retry_at).toLocaleString("fr-FR")}
+                {job.last_error && <> — « {job.last_error} »</>}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <div className="card" style={{ marginBottom: "1rem" }}>
