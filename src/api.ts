@@ -130,3 +130,49 @@ export async function fetchSentryDetail(apiKey: string): Promise<SentryDetail> {
   }
   return response.json();
 }
+
+export type MetricPoint = {
+  timestamp: string;
+  value: number;
+};
+
+export type RailwayMetricsHistory = {
+  cpu_usage: MetricPoint[];
+  memory_usage_gb: MetricPoint[];
+  network_rx_gb: MetricPoint[];
+  network_tx_gb: MetricPoint[];
+};
+
+export async function fetchRailwayMetricsHistory(
+  apiKey: string
+): Promise<RailwayMetricsHistory> {
+  const response = await fetch(`${API_BASE_URL}/admin/railway/metrics-history`, {
+    headers: authHeaders(apiKey),
+  });
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status} en récupérant l'historique Railway`);
+  }
+  return response.json();
+}
+
+export type DeploymentLogLine = {
+  message: string;
+  severity: string | null;
+  timestamp: string;
+};
+
+export type RailwayDeploymentLogs = {
+  lines: DeploymentLogLine[];
+};
+
+export async function fetchRailwayDeploymentLogs(
+  apiKey: string
+): Promise<RailwayDeploymentLogs> {
+  const response = await fetch(`${API_BASE_URL}/admin/railway/deployment-logs`, {
+    headers: authHeaders(apiKey),
+  });
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status} en récupérant les logs Railway`);
+  }
+  return response.json();
+}
