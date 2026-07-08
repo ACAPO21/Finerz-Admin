@@ -91,13 +91,17 @@ export async function fetchRecentActivity(apiKey: string): Promise<RecentActivit
 export type SentryIssuePreview = {
   title: string;
   culprit: string | null;
+  level: string | null;
+  short_id: string | null;
   event_count: string;
+  first_seen: string;
   last_seen: string;
+  permalink: string | null;
 };
 
 export type SentryDetail = {
   unresolved_count: number | null;
-  recent_issues: SentryIssuePreview[];
+  issues: SentryIssuePreview[];
 };
 
 export async function fetchSentryDetail(apiKey: string): Promise<SentryDetail> {
