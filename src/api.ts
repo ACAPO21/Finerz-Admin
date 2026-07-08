@@ -87,3 +87,25 @@ export async function fetchRecentActivity(apiKey: string): Promise<RecentActivit
   }
   return response.json();
 }
+
+export type SentryIssuePreview = {
+  title: string;
+  culprit: string | null;
+  event_count: string;
+  last_seen: string;
+};
+
+export type SentryDetail = {
+  unresolved_count: number | null;
+  recent_issues: SentryIssuePreview[];
+};
+
+export async function fetchSentryDetail(apiKey: string): Promise<SentryDetail> {
+  const response = await fetch(`${API_BASE_URL}/admin/sentry`, {
+    headers: authHeaders(apiKey),
+  });
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status} en récupérant le détail Sentry`);
+  }
+  return response.json();
+}
