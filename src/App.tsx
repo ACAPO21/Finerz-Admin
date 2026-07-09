@@ -6,6 +6,7 @@ import { OverviewPage } from "./pages/OverviewPage";
 import { SentryPage } from "./pages/SentryPage";
 import { CiDependenciesPage } from "./pages/CiDependenciesPage";
 import { InfrastructurePage } from "./pages/InfrastructurePage";
+import { DatabasePage } from "./pages/DatabasePage";
 
 const STORAGE_KEY = "finerz-admin-api-key";
 const SIDEBAR_COLLAPSED_KEY = "finerz-admin-sidebar-collapsed";
@@ -97,6 +98,7 @@ function Workspace(props: { apiKey: string; onSignOut: () => void }) {
           {page === "sentry" && <SentryPage apiKey={props.apiKey} />}
           {page === "ci" && <CiDependenciesPage apiKey={props.apiKey} />}
           {page === "infrastructure" && <InfrastructurePage apiKey={props.apiKey} />}
+          {page === "database" && <DatabasePage apiKey={props.apiKey} />}
         </main>
       </div>
     </div>

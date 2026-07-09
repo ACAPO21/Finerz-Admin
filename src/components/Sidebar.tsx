@@ -2,19 +2,21 @@ import {
   AlertTriangle,
   ChevronLeft,
   ChevronRight,
+  Database,
   GitBranch,
   LayoutGrid,
   Server,
 } from "lucide-react";
 import finerzLogo from "../assets/finerz_logo.png";
 
-export type PageId = "overview" | "sentry" | "ci" | "infrastructure";
+export type PageId = "overview" | "sentry" | "ci" | "infrastructure" | "database";
 
 const NAV_ITEMS: { id: PageId; label: string; icon: React.ReactNode }[] = [
   { id: "overview", label: "Vue d'ensemble", icon: <LayoutGrid size={17} /> },
   { id: "sentry", label: "Sentry", icon: <AlertTriangle size={17} /> },
   { id: "ci", label: "CI/CD & Dépendances", icon: <GitBranch size={17} /> },
   { id: "infrastructure", label: "Infrastructure", icon: <Server size={17} /> },
+  { id: "database", label: "Base de données", icon: <Database size={17} /> },
 ];
 
 export function Sidebar(props: {

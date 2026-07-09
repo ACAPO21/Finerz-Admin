@@ -177,3 +177,22 @@ export async function fetchRailwayDeploymentLogs(
   }
   return response.json();
 }
+
+export type DatabaseStatus = {
+  reachable: boolean;
+  alembic_current_revision: string | null;
+  alembic_head_revision: string | null;
+  alembic_up_to_date: boolean | null;
+  database_size_bytes: number | null;
+  database_size_quota_bytes: number;
+};
+
+export async function fetchDatabaseStatus(apiKey: string): Promise<DatabaseStatus> {
+  const response = await fetch(`${API_BASE_URL}/admin/database`, {
+    headers: authHeaders(apiKey),
+  });
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status} en récupérant l'état de la base`);
+  }
+  return response.json();
+}
