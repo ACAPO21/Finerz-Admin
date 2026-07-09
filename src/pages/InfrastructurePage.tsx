@@ -19,7 +19,7 @@ export function InfrastructurePage(props: { apiKey: string }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchIntegrationsSummary(props.apiKey)
+    fetchIntegrationsSummary(props.apiKey, "dev")
       .then(setIntegrations)
       .catch((err) => setError(err instanceof Error ? err.message : "Erreur inconnue"));
     fetchRailwayMetricsHistory(props.apiKey)

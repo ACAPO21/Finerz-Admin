@@ -5,19 +5,28 @@ import { CardHeader } from "../components/CardHeader";
 import { formatDate } from "../format";
 
 export function CiDependenciesPage(props: { apiKey: string }) {
+  const [branch, setBranch] = useState<"dev" | "main">("dev");
   const [integrations, setIntegrations] = useState<IntegrationsSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchIntegrationsSummary(props.apiKey)
+    fetchIntegrationsSummary(props.apiKey, branch)
       .then(setIntegrations)
       .catch((err) => setError(err instanceof Error ? err.message : "Erreur inconnue"));
-  }, [props.apiKey]);
+  }, [props.apiKey, branch]);
 
   return (
     <>
       <h1>CI/CD &amp; Dépendances</h1>
       <p className="lede">Statut des workflows GitHub Actions et des mises à jour en attente.</p>
+
+      <label style={{ display: "block", marginBottom: "1rem" }}>
+        Branche :{" "}
+        <select value={branch} onChange={(e) => setBranch(e.target.value as "dev" | "main")}>
+          <option value="dev">dev</option>
+          <option value="main">main</option>
+        </select>
+      </label>
 
       {error && <div className="error-banner">{error}</div>}
 
@@ -49,6 +58,7 @@ export function CiDependenciesPage(props: { apiKey: string }) {
           <p className="metric-note">
             {formatDate(integrations?.availability_check.created_at)}
           </p>
+          <p className="metric-note">Toujours sur main (contrainte GitHub Actions)</p>
           {integrations?.availability_check.html_url && (
             <a
               className="ext-link"

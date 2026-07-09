@@ -74,9 +74,10 @@ export type IntegrationsSummary = {
 };
 
 export async function fetchIntegrationsSummary(
-  apiKey: string
+  apiKey: string,
+  branch: "dev" | "main"
 ): Promise<IntegrationsSummary> {
-  const response = await fetch(`${API_BASE_URL}/admin/integrations`, {
+  const response = await fetch(`${API_BASE_URL}/admin/integrations?branch=${branch}`, {
     headers: authHeaders(apiKey),
   });
   if (!response.ok) {
