@@ -58,7 +58,9 @@ export function CiDependenciesPage(props: { apiKey: string }) {
           <p className="metric-note">
             {formatDate(integrations?.availability_check.created_at)}
           </p>
-          <p className="metric-note">Toujours sur main (contrainte GitHub Actions)</p>
+          <p className="metric-note">
+            Toujours sur la branche par défaut du dépôt (contrainte GitHub Actions)
+          </p>
           {integrations?.availability_check.html_url && (
             <a
               className="ext-link"
